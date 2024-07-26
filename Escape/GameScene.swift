@@ -9,7 +9,7 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var player: SKNode!
+    var player: SKSpriteNode!
     var ground: SKSpriteNode!
     var obstacleTimer: Timer?
     var isJumping : Bool = false
@@ -27,12 +27,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case left
     }
     
-    var playerMovesDirection = MovesDirection.stand
+    var playerMovesDirection = MovesDirection.right
+    var playerMovesOldDirection = MovesDirection.right
     
     override func didMove(to view: SKView) {
         
         knob = self.childNode(withName: "knob")
-        player = self.childNode(withName: "player")
+        player = self.childNode(withName: "player") as? SKSpriteNode
         joystick = self.childNode(withName: "joystick")
         jumpButton = self.childNode(withName: "jump_button")
         
@@ -106,6 +107,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    func changePlayerImage(direction : MovesDirection) {
+        
+        let textureLeft = SKTexture(imageNamed: "astronaut_kitty_left_1")
+        let textureRight = SKTexture(imageNamed: "astronaut_kitty_right_1")
+        
+        let initialSize = player.size
+        
+        switch playerMovesDirection {
+        case .right:
+            player.texture = textureRight
+        case .left:
+            player.texture = textureLeft
+        case .stand:
+            player.texture = textureRight
+        }
+        player.size = initialSize
+        
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -166,7 +186,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if (player.position.x - 5 ) > guide.layoutFrame.width / -2 {
                         player.position.x -= 5
+                        playerMovesOldDirection = playerMovesDirection
                         playerMovesDirection = MovesDirection.left
+                        if (playerMovesOldDirection != playerMovesDirection ) {
+                            changePlayerImage(direction: MovesDirection.left)
+                        }
                     }
                     
                     
@@ -175,7 +199,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if (player.position.x + 5 ) < guide.layoutFrame.width / 2 {
                         player.position.x += 5
+                        playerMovesOldDirection = playerMovesDirection
                         playerMovesDirection = MovesDirection.right
+                        if (playerMovesOldDirection != playerMovesDirection ) {
+                            changePlayerImage(direction: MovesDirection.right)
+                        }
                     }
                     
                 }
