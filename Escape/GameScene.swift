@@ -18,6 +18,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var knob: SKNode!
     var joystick: SKNode!
+    var jumpButton: SKNode!
     var joystick_width : Double = 1.0
     
     override func didMove(to view: SKView) {
@@ -25,6 +26,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         knob = self.childNode(withName: "knob")
         player = self.childNode(withName: "player")
         joystick = self.childNode(withName: "joystick")
+        jumpButton = self.childNode(withName: "jump_button")
         
         joystick_width = joystick.frame.width - knob.frame.width
         
@@ -162,6 +164,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         
+        if (jumpButton.contains(location)){
+            let guide = view!.safeAreaLayoutGuide
+            player.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
+        }
+        
         // Check if the touch is on the button
         if knob.contains(location) {
             // Do nothing on touch begin
@@ -169,45 +176,58 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-        let previousLocation = touch.previousLocation(in: self)
         
-        // Calculate the translation along the x-axis
-        let translation = location.x - previousLocation.x
-        
-        // Calculate the new x position
-        var newXKnobPosition = knob.position.x + translation
-        
-        // Constrain the new x position within the range [initialPosition.x - 50, initialPosition.x + 50]
-        let minX = initialPosition.x - joystick_width / 2
-        let maxX = initialPosition.x + joystick_width / 2
-        
-        let guide = view!.safeAreaLayoutGuide
-        let viewMinX = guide.layoutFrame.minX
-        let viewMaxX = guide.layoutFrame.maxX
-        
-        if newXKnobPosition < minX {
-            newXKnobPosition = minX
-            
-            if (player.position.x - 5 ) > guide.layoutFrame.width / -2 {
-                player.position.x -= 5
+        for touch in touches {
+            let pointTouched = touch.location(in: self)
+            if knob.contains(pointTouched) {
+
+                
+//                guard let touch = touches.first else { return }
+                let location = touch.location(in: self)
+                let previousLocation = touch.previousLocation(in: self)
+                
+                // Calculate the translation along the x-axis
+                let translation = location.x - previousLocation.x
+                
+                // Calculate the new x position
+                var newXKnobPosition = knob.position.x + translation
+                
+                // Constrain the new x position within the range [initialPosition.x - 50, initialPosition.x + 50]
+                let minX = initialPosition.x - joystick_width / 2
+                let maxX = initialPosition.x + joystick_width / 2
+                
+                let guide = view!.safeAreaLayoutGuide
+//                let viewMinX = guide.layoutFrame.minX
+//                let viewMaxX = guide.layoutFrame.maxX
+                
+                if newXKnobPosition < minX {
+                    newXKnobPosition = minX
+                    
+                    if (player.position.x - 5 ) > guide.layoutFrame.width / -2 {
+                        player.position.x -= 5
+                    }
+                    
+                    
+                } else if newXKnobPosition > maxX {
+                    newXKnobPosition = maxX
+                    
+                    if (player.position.x + 5 ) < guide.layoutFrame.width / 2 {
+                        player.position.x += 5
+                    }
+                    
+        //            player.position.x += 5
+                }
+
+
+                // Update the button's position
+                knob.position.x = newXKnobPosition
+                
+                
             }
-            
-            
-        } else if newXKnobPosition > maxX {
-            newXKnobPosition = maxX
-            
-            if (player.position.x + 5 ) < guide.layoutFrame.width / 2 {
-                player.position.x += 5
-            }
-            
-//            player.position.x += 5
+
         }
+        
 
-
-        // Update the button's position
-        knob.position.x = newXKnobPosition
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
