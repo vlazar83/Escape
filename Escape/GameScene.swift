@@ -17,11 +17,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var initialPosition: CGPoint!
     
     var knob: SKNode!
+    var joystick: SKNode!
+    var joystick_width : Double = 1.0
     
     override func didMove(to view: SKView) {
         
         knob = self.childNode(withName: "knob")
         player = self.childNode(withName: "player")
+        joystick = self.childNode(withName: "joystick")
+        
+        joystick_width = joystick.frame.width - (knob.frame.width * 1.5 )
         
         initialPosition = knob.position
         
@@ -166,12 +171,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
+        let previousLocation = touch.previousLocation(in: self)
         
-        // Move the button along the x-axis
-        if knob.contains(location) {
-            let translation = touch.previousLocation(in: self).x - location.x
-            knob.position.x -= translation
+        // Calculate the translation along the x-axis
+        let translation = location.x - previousLocation.x
+        
+        // Calculate the new x position
+        var newXPosition = knob.position.x + translation
+        
+        // Constrain the new x position within the range [initialPosition.x - 50, initialPosition.x + 50]
+        let minX = initialPosition.x - joystick_width / 2
+        let maxX = initialPosition.x + joystick_width / 2
+        
+        if newXPosition < minX {
+            newXPosition = minX
+        } else if newXPosition > maxX {
+            newXPosition = maxX
         }
+        
+        // Update the button's position
+        knob.position.x = newXPosition
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -179,11 +198,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let location = touch.location(in: self)
         
         // Check if the touch is on the button
-        if knob.contains(location) {
+//        if knob.contains(location) {
             // Animate the button back to the initial position
             let moveAction = SKAction.move(to: initialPosition, duration: 0.5)
             knob.run(moveAction)
-        }
+//        }
     }
     
     func restartGame() {
