@@ -21,6 +21,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var jumpButton: SKNode!
     var joystick_width : Double = 1.0
     
+    enum MovesDirection {
+        case stand
+        case right
+        case left
+    }
+    
+    var playerMovesDirection = MovesDirection.stand
+    
     override func didMove(to view: SKView) {
         
         knob = self.childNode(withName: "knob")
@@ -32,35 +40,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         initialPosition = knob.position
         
-        
-//        physicsWorld.contactDelegate = self
-//        
-//        // Set up the background color
-//        backgroundColor = .white
-//        
-//        let guide = view.safeAreaLayoutGuide
-//        let height = guide.layoutFrame.size.height
-//        
-//        // Calculate the bottom CGPoint
-//        let bottomPoint = CGPoint(x: frame.midX, y: -1.0 * ( guide.layoutFrame.size.height / 2.0 )  + 50.0 )
-//        
-//        // Set up the ground
-//        ground = SKSpriteNode(color: .brown, size: CGSize(width: frame.width, height: 25))
-//        ground.name = "ground"
-//        ground.position = CGPoint(x: frame.midX, y: bottomPoint.y )
-//        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
-//        ground.physicsBody?.isDynamic = false
-//        addChild(ground)
-//        
-//        // Set up the runner at the bottom of the screen
-//        runner = SKSpriteNode(imageNamed: "kitten")
-//        runner.position = CGPoint(x: frame.midX / 4, y: ground.position.y + ground.size.height / 2 + runner.size.height / 2)
-//        runner.physicsBody = SKPhysicsBody(rectangleOf: runner.size)
-//        runner.physicsBody?.allowsRotation = false
-//        runner.physicsBody?.categoryBitMask = 1
-//        runner.physicsBody?.contactTestBitMask = 1
-//        addChild(runner)
-//        
 //        // Start spawning obstacles
 //        obstacleTimer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(spawnObstacle), userInfo: nil, repeats: true)
     }
@@ -120,45 +99,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        addChild(obstacle)
     }
     
-//    func didBegin(_ contact: SKPhysicsContact) {
-//        if contact.bodyA.node == runner || contact.bodyB.node == runner {
-//            // Game over logic here
-//            gameOver()
-//        }
-//    }
     
     func gameOver() {
         // Stop spawning obstacles
         obstacleTimer?.invalidate()
         
-//        // Show game over message
-//        let gameOverLabel = SKLabelNode(text: "Game Over")
-//        gameOverLabel.position = CGPoint(x: frame.midX, y: frame.midY)
-//        gameOverLabel.fontSize = 40
-//        gameOverLabel.fontColor = .red
-//        addChild(gameOverLabel)
-//        
-//        // Add a restart button
-//        let restartLabel = SKLabelNode(text: "Tap to Restart")
-//        restartLabel.position = CGPoint(x: frame.midX, y: frame.midY - 50)
-//        restartLabel.fontSize = 20
-//        restartLabel.fontColor = .black
-//        restartLabel.name = "restart"
-//        addChild(restartLabel)
     }
-    
-//    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-////        for touch in touches {
-////            let location = touch.location(in: self)
-////            let nodes = self.nodes(at: location)
-////            
-////            for node in nodes {
-////                if node.name == "restart" {
-////                    restartGame()
-////                }
-////            }
-////        }
-//    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
@@ -166,7 +112,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if (jumpButton.contains(location)){
             let guide = view!.safeAreaLayoutGuide
-            player.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
+            
+            switch playerMovesDirection {
+            case .stand:
+                player.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
+            case .right:
+                if (player.position.x + 20 ) < guide.layoutFrame.width / 2 {
+                    player.physicsBody?.applyImpulse(CGVector(dx: 20, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                } else {
+                    var diffx = ( guide.layoutFrame.width / 2 ) - player.position.x - 2
+                    player.physicsBody?.applyImpulse(CGVector(dx: diffx, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                }
+            case .left:
+                if (player.position.x - 20 ) < guide.layoutFrame.width / -2 {
+                    var diffx = ( guide.layoutFrame.width / -2 ) - player.position.x + 2
+                    player.physicsBody?.applyImpulse(CGVector(dx: diffx, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                    
+                } else {
+                    player.physicsBody?.applyImpulse(CGVector(dx: -20, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                }
+            }
+            
         }
         
         // Check if the touch is on the button
@@ -179,10 +145,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         for touch in touches {
             let pointTouched = touch.location(in: self)
-            if knob.contains(pointTouched) {
 
-                
-//                guard let touch = touches.first else { return }
                 let location = touch.location(in: self)
                 let previousLocation = touch.previousLocation(in: self)
                 
@@ -197,14 +160,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let maxX = initialPosition.x + joystick_width / 2
                 
                 let guide = view!.safeAreaLayoutGuide
-//                let viewMinX = guide.layoutFrame.minX
-//                let viewMaxX = guide.layoutFrame.maxX
-                
+
                 if newXKnobPosition < minX {
                     newXKnobPosition = minX
                     
                     if (player.position.x - 5 ) > guide.layoutFrame.width / -2 {
                         player.position.x -= 5
+                        playerMovesDirection = MovesDirection.left
                     }
                     
                     
@@ -213,9 +175,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if (player.position.x + 5 ) < guide.layoutFrame.width / 2 {
                         player.position.x += 5
+                        playerMovesDirection = MovesDirection.right
                     }
                     
-        //            player.position.x += 5
                 }
 
 
@@ -224,22 +186,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 
             }
-
-        }
         
 
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
-//        let location = touch.location(in: self)
-        
-        // Check if the touch is on the button
-//        if knob.contains(location) {
             // Animate the button back to the initial position
             let moveAction = SKAction.move(to: initialPosition, duration: 0.5)
             knob.run(moveAction)
-//        }
+            playerMovesDirection = MovesDirection.stand
     }
     
     func restartGame() {
