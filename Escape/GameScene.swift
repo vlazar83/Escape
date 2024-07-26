@@ -9,42 +9,53 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var runner: SKSpriteNode!
+    var player: SKNode!
     var ground: SKSpriteNode!
     var obstacleTimer: Timer?
     var isJumping : Bool = false
     
+    var initialPosition: CGPoint!
+    
+    var knob: SKNode!
+    
     override func didMove(to view: SKView) {
-        physicsWorld.contactDelegate = self
         
-        // Set up the background color
-        backgroundColor = .white
+        knob = self.childNode(withName: "knob")
+        player = self.childNode(withName: "player")
         
-        let guide = view.safeAreaLayoutGuide
-        let height = guide.layoutFrame.size.height
+        initialPosition = knob.position
         
-        // Calculate the bottom CGPoint
-        let bottomPoint = CGPoint(x: frame.midX, y: -1.0 * ( guide.layoutFrame.size.height / 2.0 )  + 50.0 )
         
-        // Set up the ground
-        ground = SKSpriteNode(color: .brown, size: CGSize(width: frame.width, height: 25))
-        ground.name = "ground"
-        ground.position = CGPoint(x: frame.midX, y: bottomPoint.y )
-        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
-        ground.physicsBody?.isDynamic = false
-        addChild(ground)
-        
-        // Set up the runner at the bottom of the screen
-        runner = SKSpriteNode(imageNamed: "kitten")
-        runner.position = CGPoint(x: frame.midX / 4, y: ground.position.y + ground.size.height / 2 + runner.size.height / 2)
-        runner.physicsBody = SKPhysicsBody(rectangleOf: runner.size)
-        runner.physicsBody?.allowsRotation = false
-        runner.physicsBody?.categoryBitMask = 1
-        runner.physicsBody?.contactTestBitMask = 1
-        addChild(runner)
-        
-        // Start spawning obstacles
-        obstacleTimer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(spawnObstacle), userInfo: nil, repeats: true)
+//        physicsWorld.contactDelegate = self
+//        
+//        // Set up the background color
+//        backgroundColor = .white
+//        
+//        let guide = view.safeAreaLayoutGuide
+//        let height = guide.layoutFrame.size.height
+//        
+//        // Calculate the bottom CGPoint
+//        let bottomPoint = CGPoint(x: frame.midX, y: -1.0 * ( guide.layoutFrame.size.height / 2.0 )  + 50.0 )
+//        
+//        // Set up the ground
+//        ground = SKSpriteNode(color: .brown, size: CGSize(width: frame.width, height: 25))
+//        ground.name = "ground"
+//        ground.position = CGPoint(x: frame.midX, y: bottomPoint.y )
+//        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
+//        ground.physicsBody?.isDynamic = false
+//        addChild(ground)
+//        
+//        // Set up the runner at the bottom of the screen
+//        runner = SKSpriteNode(imageNamed: "kitten")
+//        runner.position = CGPoint(x: frame.midX / 4, y: ground.position.y + ground.size.height / 2 + runner.size.height / 2)
+//        runner.physicsBody = SKPhysicsBody(rectangleOf: runner.size)
+//        runner.physicsBody?.allowsRotation = false
+//        runner.physicsBody?.categoryBitMask = 1
+//        runner.physicsBody?.contactTestBitMask = 1
+//        addChild(runner)
+//        
+//        // Start spawning obstacles
+//        obstacleTimer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(spawnObstacle), userInfo: nil, repeats: true)
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -54,43 +65,52 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //            ground.position.x = frame.width / 2
 //        }
         
-        // Move obstacles
-        for node in children {
-            if node.name == "obstacle" {
-                node.position.x -= 5
-                if node.position.x < -frame.width / 2 {
-                    node.removeFromParent()
-                }
-            }
-        }
+//        // Move obstacles
+//        for node in children {
+//            if node.name == "obstacle" {
+//                node.position.x -= 5
+//                if node.position.x < -frame.width / 2 {
+//                    node.removeFromParent()
+//                }
+//            }
+//        }
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        
+//        for touch in touches {
+//            let pointTouched = touch.location(in: self)
+//            if knob.contains(pointTouched) {
+//                knob.position.x = touch.location(in: self).x
+//            }
+//            
+//        }
+//        
         // Make the runner jump
-        let guide = view!.safeAreaLayoutGuide
-        let height = guide.layoutFrame.size.height
-       
-        if !isJumping {
-            isJumping = true
-            runner.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
-        }
-    }
+//        let guide = view!.safeAreaLayoutGuide
+//        let height = guide.layoutFrame.size.height
+//       
+//        if !isJumping {
+//            isJumping = true
+//            runner.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
+//        }
+//    }
     
     func didBegin(_ contact: SKPhysicsContact) {
         // Ensure the runner has landed on the ground
-        if contact.bodyA.node == runner && contact.bodyB.node?.name == "ground" ||
-           contact.bodyB.node == runner && contact.bodyA.node?.name == "ground" {
-            isJumping = false
-        }
+//        if contact.bodyA.node == runner && contact.bodyB.node?.name == "ground" ||
+//           contact.bodyB.node == runner && contact.bodyA.node?.name == "ground" {
+//            isJumping = false
+//        }
     }
     
     @objc func spawnObstacle() {
-        let obstacle = SKSpriteNode(color: .red, size: CGSize(width: 30, height: 60))
-        obstacle.position = CGPoint(x: frame.maxX, y: ground.size.height + obstacle.size.height / 2)
-        obstacle.name = "obstacle"
-        obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
-        obstacle.physicsBody?.isDynamic = false
-        addChild(obstacle)
+//        let obstacle = SKSpriteNode(color: .red, size: CGSize(width: 30, height: 60))
+//        obstacle.position = CGPoint(x: frame.maxX, y: ground.size.height + obstacle.size.height / 2)
+//        obstacle.name = "obstacle"
+//        obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
+//        obstacle.physicsBody?.isDynamic = false
+//        addChild(obstacle)
     }
     
 //    func didBegin(_ contact: SKPhysicsContact) {
@@ -120,16 +140,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        addChild(restartLabel)
     }
     
+//    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+////        for touch in touches {
+////            let location = touch.location(in: self)
+////            let nodes = self.nodes(at: location)
+////            
+////            for node in nodes {
+////                if node.name == "restart" {
+////                    restartGame()
+////                }
+////            }
+////        }
+//    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        
+        // Check if the touch is on the button
+        if knob.contains(location) {
+            // Do nothing on touch begin
+        }
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        
+        // Move the button along the x-axis
+        if knob.contains(location) {
+            let translation = touch.previousLocation(in: self).x - location.x
+            knob.position.x -= translation
+        }
+    }
+    
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let location = touch.location(in: self)
-            let nodes = self.nodes(at: location)
-            
-            for node in nodes {
-                if node.name == "restart" {
-                    restartGame()
-                }
-            }
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        
+        // Check if the touch is on the button
+        if knob.contains(location) {
+            // Animate the button back to the initial position
+            let moveAction = SKAction.move(to: initialPosition, duration: 0.5)
+            knob.run(moveAction)
         }
     }
     
