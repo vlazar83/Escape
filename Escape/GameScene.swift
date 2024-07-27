@@ -31,15 +31,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var playerMovesOldDirection = MovesDirection.right
     
     override func didMove(to view: SKView) {
+        physicsWorld.contactDelegate = self
         
         knob = self.childNode(withName: "knob")
         player = self.childNode(withName: "player") as? SKSpriteNode
+        ground = self.childNode(withName: "ground") as? SKSpriteNode
         joystick = self.childNode(withName: "joystick")
         jumpButton = self.childNode(withName: "jump_button")
         
         joystick_width = joystick.frame.width - knob.frame.width
         
         initialPosition = knob.position
+        
+//        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
+//        ground.physicsBody?.isDynamic = false
+//        ground?.physicsBody?.categoryBitMask = 0x1 << 1 // Example category
+//        ground?.physicsBody?.contactTestBitMask = 0x1 << 0 // Example contact test
+//        ground?.physicsBody?.collisionBitMask = 0x1 << 0 // Example collision
+//        ground.texture = SKTexture(imageNamed: "ground2")
+//        
+//        player.physicsBody = SKPhysicsBody(rectangleOf: player.size)
+//        player.physicsBody?.allowsRotation = false
+//        player.physicsBody?.categoryBitMask = 1
+//        player.physicsBody?.contactTestBitMask = 1
         
 //        // Start spawning obstacles
 //        obstacleTimer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(spawnObstacle), userInfo: nil, repeats: true)
@@ -85,10 +99,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didBegin(_ contact: SKPhysicsContact) {
         // Ensure the runner has landed on the ground
-//        if contact.bodyA.node == runner && contact.bodyB.node?.name == "ground" ||
-//           contact.bodyB.node == runner && contact.bodyA.node?.name == "ground" {
-//            isJumping = false
-//        }
+        if contact.bodyA.node == player && contact.bodyB.node?.name == "ground" ||
+           contact.bodyB.node == player && contact.bodyA.node?.name == "ground" {
+            isJumping = false
+        }
     }
     
     @objc func spawnObstacle() {
@@ -109,8 +123,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func changePlayerImage(direction : MovesDirection) {
         
-        let textureLeft = SKTexture(imageNamed: "astronaut_kitty_left_1")
-        let textureRight = SKTexture(imageNamed: "astronaut_kitty_right_1")
+        let textureLeft = SKTexture(imageNamed: "astronaut_kitty_left_3")
+        let textureRight = SKTexture(imageNamed: "astronaut_kitty_right_3")
         
         let initialSize = player.size
         
@@ -131,27 +145,33 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let location = touch.location(in: self)
         
         if (jumpButton.contains(location)){
+
             let guide = view!.safeAreaLayoutGuide
             
-            switch playerMovesDirection {
-            case .stand:
-                player.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
-            case .right:
-                if (player.position.x + 20 ) < guide.layoutFrame.width / 2 {
-                    player.physicsBody?.applyImpulse(CGVector(dx: 20, dy: ( guide.layoutFrame.size.height / 3.0 )))
-                } else {
-                    var diffx = ( guide.layoutFrame.width / 2 ) - player.position.x - 2
-                    player.physicsBody?.applyImpulse(CGVector(dx: diffx, dy: ( guide.layoutFrame.size.height / 3.0 )))
+            if !isJumping {
+                isJumping = true
+                switch playerMovesDirection {
+                case .stand:
+                    player.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                case .right:
+                    if (player.position.x + 20 ) < guide.layoutFrame.width / 2 {
+                        player.physicsBody?.applyImpulse(CGVector(dx: 20, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                    } else {
+                        var diffx = ( guide.layoutFrame.width / 2 ) - player.position.x - 2
+                        player.physicsBody?.applyImpulse(CGVector(dx: diffx, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                    }
+                case .left:
+                    if (player.position.x - 20 ) < guide.layoutFrame.width / -2 {
+                        var diffx = ( guide.layoutFrame.width / -2 ) - player.position.x + 2
+                        player.physicsBody?.applyImpulse(CGVector(dx: diffx, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                        
+                    } else {
+                        player.physicsBody?.applyImpulse(CGVector(dx: -20, dy: ( guide.layoutFrame.size.height / 3.0 )))
+                    }
                 }
-            case .left:
-                if (player.position.x - 20 ) < guide.layoutFrame.width / -2 {
-                    var diffx = ( guide.layoutFrame.width / -2 ) - player.position.x + 2
-                    player.physicsBody?.applyImpulse(CGVector(dx: diffx, dy: ( guide.layoutFrame.size.height / 3.0 )))
-                    
-                } else {
-                    player.physicsBody?.applyImpulse(CGVector(dx: -20, dy: ( guide.layoutFrame.size.height / 3.0 )))
-                }
+                
             }
+
             
         }
         
