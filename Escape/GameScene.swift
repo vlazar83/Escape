@@ -43,20 +43,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         initialPosition = knob.position
         
-//        ground.physicsBody = SKPhysicsBody(rectangleOf: ground.size)
-//        ground.physicsBody?.isDynamic = false
-//        ground?.physicsBody?.categoryBitMask = 0x1 << 1 // Example category
-//        ground?.physicsBody?.contactTestBitMask = 0x1 << 0 // Example contact test
-//        ground?.physicsBody?.collisionBitMask = 0x1 << 0 // Example collision
-//        ground.texture = SKTexture(imageNamed: "ground2")
-//        
-//        player.physicsBody = SKPhysicsBody(rectangleOf: player.size)
-//        player.physicsBody?.allowsRotation = false
-//        player.physicsBody?.categoryBitMask = 1
-//        player.physicsBody?.contactTestBitMask = 1
-        
 //        // Start spawning obstacles
-//        obstacleTimer = Timer.scheduledTimer(timeInterval: 2.0, target: self, selector: #selector(spawnObstacle), userInfo: nil, repeats: true)
+        obstacleTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(spawnObstacle), userInfo: nil, repeats: true)
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -67,35 +55,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 //        }
         
 //        // Move obstacles
-//        for node in children {
-//            if node.name == "obstacle" {
-//                node.position.x -= 5
-//                if node.position.x < -frame.width / 2 {
-//                    node.removeFromParent()
-//                }
-//            }
-//        }
+        for node in children {
+            if node.name == "comet22" {
+                node.position.y -= 5
+                if node.position.y < -frame.height / 2 {
+                    node.removeFromParent()
+                }
+            }
+            if node.name == "comet23" {
+                node.position.y -= 5
+                if node.position.y < -frame.height / 2 {
+                    node.removeFromParent()
+                }
+                node.position.x += 5
+                if node.position.x < -frame.width / 2 {
+                    node.removeFromParent()
+                }
+            }
+            if node.name == "comet24" {
+                node.position.y -= 5
+                if node.position.y < -frame.height / 2 {
+                    node.removeFromParent()
+                }
+                node.position.x -= 5
+                if node.position.x < -frame.width / 2 {
+                    node.removeFromParent()
+                }
+            }
+        }
     }
     
-//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        
-//        for touch in touches {
-//            let pointTouched = touch.location(in: self)
-//            if knob.contains(pointTouched) {
-//                knob.position.x = touch.location(in: self).x
-//            }
-//            
-//        }
-//        
-        // Make the runner jump
-//        let guide = view!.safeAreaLayoutGuide
-//        let height = guide.layoutFrame.size.height
-//       
-//        if !isJumping {
-//            isJumping = true
-//            runner.physicsBody?.applyImpulse(CGVector(dx: 0, dy: ( guide.layoutFrame.size.height / 3.0 )))
-//        }
-//    }
     
     func didBegin(_ contact: SKPhysicsContact) {
         // Ensure the runner has landed on the ground
@@ -103,17 +92,68 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
            contact.bodyB.node == player && contact.bodyA.node?.name == "ground" {
             isJumping = false
         }
+        
+        if contact.bodyA.node?.name == "comet22" && contact.bodyB.node?.name == "ground" ||
+           contact.bodyB.node?.name == "comet22" && contact.bodyA.node?.name == "ground" ||
+            contact.bodyA.node?.name == "comet22" && contact.bodyB.node?.name == "player" ||
+            contact.bodyB.node?.name == "comet22" && contact.bodyA.node?.name == "player" {
+            if(contact.bodyA.node?.name == "comet22"){
+                contact.bodyA.node?.removeFromParent()
+            } else {
+                contact.bodyB.node?.removeFromParent()
+            }
+        }
+        
+        if contact.bodyA.node?.name == "comet23" && contact.bodyB.node?.name == "ground" ||
+           contact.bodyB.node?.name == "comet23" && contact.bodyA.node?.name == "ground"  ||
+            contact.bodyA.node?.name == "comet23" && contact.bodyB.node?.name == "player" ||
+            contact.bodyB.node?.name == "comet23" && contact.bodyA.node?.name == "player" {
+            if(contact.bodyA.node?.name == "comet23"){
+                contact.bodyA.node?.removeFromParent()
+            } else {
+                contact.bodyB.node?.removeFromParent()
+            }
+        }
+        
+        if contact.bodyA.node?.name == "comet24" && contact.bodyB.node?.name == "ground" ||
+           contact.bodyB.node?.name == "comet24" && contact.bodyA.node?.name == "ground"  ||
+            contact.bodyA.node?.name == "comet24" && contact.bodyB.node?.name == "player" ||
+            contact.bodyB.node?.name == "comet24" && contact.bodyA.node?.name == "player" {
+            if(contact.bodyA.node?.name == "comet24"){
+                contact.bodyA.node?.removeFromParent()
+            } else {
+                contact.bodyB.node?.removeFromParent()
+            }
+        }
+        
     }
     
     @objc func spawnObstacle() {
-//        let obstacle = SKSpriteNode(color: .red, size: CGSize(width: 30, height: 60))
-//        obstacle.position = CGPoint(x: frame.maxX, y: ground.size.height + obstacle.size.height / 2)
-//        obstacle.name = "obstacle"
-//        obstacle.physicsBody = SKPhysicsBody(rectangleOf: obstacle.size)
-//        obstacle.physicsBody?.isDynamic = false
-//        addChild(obstacle)
+        let randomNumber = Int.random(in: 22...24)
+        var textureComet : SKTexture
+        
+        textureComet = SKTexture(imageNamed: "comet"+String(randomNumber))
+        
+//        let textureComet = SKTexture(imageNamed: "comet")
+        let comet = SKSpriteNode(texture: textureComet, size: CGSize(width: 200, height: 160))
+        
+        let randomPos = generateRandomPosition(atTopOf: frame)
+        
+        
+//        comet.position = CGPoint(x: frame.maxX, y: ground.size.height + comet.size.height / 2)
+        comet.position = CGPoint(x: randomPos.x, y: randomPos.y)
+        comet.name = "comet"+String(randomNumber)
+        comet.physicsBody = SKPhysicsBody(circleOfRadius: comet.size.width/8)
+        comet.physicsBody?.isDynamic = true
+        comet.physicsBody?.affectedByGravity = false
+        addChild(comet)
     }
     
+    func generateRandomPosition(atTopOf frame: CGRect) -> CGPoint {
+        let randomX = CGFloat.random(in: 0...frame.width)
+        let yPosition = frame.height
+        return CGPoint(x: randomX, y: yPosition)
+    }
     
     func gameOver() {
         // Stop spawning obstacles
