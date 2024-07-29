@@ -125,7 +125,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
       var cometrFrames: [SKTexture] = []
       var cometlFrames: [SKTexture] = []
 
-      let numImages = 3
+      let numImages = 7
       for i in 0...numImages {
         let cometrTextureName = "cometr\(i)"
           cometrFrames.append(SKTexture(imageNamed: cometrTextureName))
