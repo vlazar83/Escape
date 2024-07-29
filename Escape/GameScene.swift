@@ -30,6 +30,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var playerMovesDirection = MovesDirection.right
     var playerMovesOldDirection = MovesDirection.right
     
+    private var cometrFrames: [SKTexture] = []
+    private var cometlFrames: [SKTexture] = []
+    
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
         
@@ -45,6 +48,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
 //        // Start spawning obstacles
         obstacleTimer = Timer.scheduledTimer(timeInterval: 0.5, target: self, selector: #selector(spawnObstacle), userInfo: nil, repeats: true)
+        
+        buildComet()
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -56,13 +61,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
 //        // Move obstacles
         for node in children {
-            if node.name == "comet22" {
-                node.position.y -= 5
-                if node.position.y < -frame.height / 2 {
-                    node.removeFromParent()
-                }
-            }
-            if node.name == "comet23" {
+//            if node.name == "comet" {
+//                node.position.y -= 5
+//                if node.position.y < -frame.height / 2 {
+//                    node.removeFromParent()
+//                }
+//            }
+            if node.name == "cometl" {
                 node.position.y -= 5
                 if node.position.y < -frame.height / 2 {
                     node.removeFromParent()
@@ -72,7 +77,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     node.removeFromParent()
                 }
             }
-            if node.name == "comet24" {
+            if node.name == "cometr" {
                 node.position.y -= 5
                 if node.position.y < -frame.height / 2 {
                     node.removeFromParent()
@@ -93,64 +98,96 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             isJumping = false
         }
         
-        if contact.bodyA.node?.name == "comet22" && contact.bodyB.node?.name == "ground" ||
-           contact.bodyB.node?.name == "comet22" && contact.bodyA.node?.name == "ground" ||
-            contact.bodyA.node?.name == "comet22" && contact.bodyB.node?.name == "player" ||
-            contact.bodyB.node?.name == "comet22" && contact.bodyA.node?.name == "player" {
-            if(contact.bodyA.node?.name == "comet22"){
+        if contact.bodyA.node?.name == "cometl" && contact.bodyB.node?.name == "ground" ||
+           contact.bodyB.node?.name == "cometl" && contact.bodyA.node?.name == "ground" ||
+            contact.bodyA.node?.name == "cometl" && contact.bodyB.node?.name == "player" ||
+            contact.bodyB.node?.name == "cometl" && contact.bodyA.node?.name == "player" {
+            if(contact.bodyA.node?.name == "cometl"){
                 contact.bodyA.node?.removeFromParent()
             } else {
                 contact.bodyB.node?.removeFromParent()
             }
         }
         
-        if contact.bodyA.node?.name == "comet23" && contact.bodyB.node?.name == "ground" ||
-           contact.bodyB.node?.name == "comet23" && contact.bodyA.node?.name == "ground"  ||
-            contact.bodyA.node?.name == "comet23" && contact.bodyB.node?.name == "player" ||
-            contact.bodyB.node?.name == "comet23" && contact.bodyA.node?.name == "player" {
-            if(contact.bodyA.node?.name == "comet23"){
+        if contact.bodyA.node?.name == "cometr" && contact.bodyB.node?.name == "ground" ||
+           contact.bodyB.node?.name == "cometr" && contact.bodyA.node?.name == "ground"  ||
+            contact.bodyA.node?.name == "cometr" && contact.bodyB.node?.name == "player" ||
+            contact.bodyB.node?.name == "cometr" && contact.bodyA.node?.name == "player" {
+            if(contact.bodyA.node?.name == "cometr"){
                 contact.bodyA.node?.removeFromParent()
             } else {
                 contact.bodyB.node?.removeFromParent()
             }
         }
+    }
+    
+    func buildComet() {
+      var cometrFrames: [SKTexture] = []
+      var cometlFrames: [SKTexture] = []
+
+      let numImages = 3
+      for i in 0...numImages {
+        let cometrTextureName = "cometr\(i)"
+          cometrFrames.append(SKTexture(imageNamed: cometrTextureName))
+        let cometlTextureName = "cometl\(i)"
+          cometlFrames.append(SKTexture(imageNamed: cometlTextureName))
+      }
+        self.cometrFrames = cometrFrames
+        self.cometlFrames = cometlFrames
+    }
+
+    func animatComet(comet: SKSpriteNode, direction: Int) {
         
-        if contact.bodyA.node?.name == "comet24" && contact.bodyB.node?.name == "ground" ||
-           contact.bodyB.node?.name == "comet24" && contact.bodyA.node?.name == "ground"  ||
-            contact.bodyA.node?.name == "comet24" && contact.bodyB.node?.name == "player" ||
-            contact.bodyB.node?.name == "comet24" && contact.bodyA.node?.name == "player" {
-            if(contact.bodyA.node?.name == "comet24"){
-                contact.bodyA.node?.removeFromParent()
-            } else {
-                contact.bodyB.node?.removeFromParent()
-            }
+        
+        if(direction == 0){
+            comet.run(SKAction.repeatForever(
+                SKAction.animate(with: cometlFrames,
+                         timePerFrame: 0.1,
+                         resize: false,
+                         restore: false)),
+                         withKey:"cometlFalling")
+        } else {
+            comet.run(SKAction.repeatForever(
+                SKAction.animate(with: cometrFrames,
+                         timePerFrame: 0.1,
+                         resize: false,
+                         restore: false)),
+                         withKey:"cometrFalling")
+            
         }
-        
     }
     
     @objc func spawnObstacle() {
-        let randomNumber = Int.random(in: 22...24)
-        var textureComet : SKTexture
-        
-        textureComet = SKTexture(imageNamed: "comet"+String(randomNumber))
+        let firstFrameTexture = cometrFrames[0]
         
 //        let textureComet = SKTexture(imageNamed: "comet")
-        let comet = SKSpriteNode(texture: textureComet, size: CGSize(width: 200, height: 160))
+        let comet = SKSpriteNode(texture: firstFrameTexture, size: CGSize(width: 200, height: 160))
         
         let randomPos = generateRandomPosition(atTopOf: frame)
         
         
 //        comet.position = CGPoint(x: frame.maxX, y: ground.size.height + comet.size.height / 2)
         comet.position = CGPoint(x: randomPos.x, y: randomPos.y)
-        comet.name = "comet"+String(randomNumber)
+        
+        // decide the direction of the comet it will appear: left - 0  or right - 1
+        let randomNumber = Int.random(in: 0...1)
+        if(randomNumber == 0) {
+            comet.name = "cometl"
+        } else {
+            comet.name = "cometr"
+        }
+        
+        
         comet.physicsBody = SKPhysicsBody(circleOfRadius: comet.size.width/8)
         comet.physicsBody?.isDynamic = true
         comet.physicsBody?.affectedByGravity = false
         addChild(comet)
+        
+        animatComet(comet: comet, direction: randomNumber)
     }
     
     func generateRandomPosition(atTopOf frame: CGRect) -> CGPoint {
-        let randomX = CGFloat.random(in: 0...frame.width)
+        let randomX = CGFloat.random(in: -frame.width/2...frame.width/2)
         let yPosition = frame.height
         return CGPoint(x: randomX, y: yPosition)
     }
